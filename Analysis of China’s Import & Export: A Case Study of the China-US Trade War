@@ -1,0 +1,33 @@
+> load("D:/教学/数据/月度数据.RData")
+> range<-max(data$`进出口总值当期值(千美元)`)-min(data$`进出口总值当期值
+(千美元)`);range
+[1] 172365636
+> IQR(data$`进出口总值当期值(千美元)`,type=6)
+[1] 67531592
+> load("D:/教学/数据/月度数据.RData")
+> var(data$`进出口总值当期值(千美元)`)
+[1] 1.742298e+15
+> sd(data$`进出口总值当期值(千美元)`)
+[1] 41740847
+> stem(data$`进出口总值当期值(千美元)`)
+
+
+> load("D:/教学/数据/月度数据.RData")
+> range<-max(data$`进出口总值当期值(千美元)`)-min(data$`进出口总值当期值
+(千美元)`);range
+[1] 172365636
+> IQR(data$`进出口总值当期值(千美元)`,type=6)
+[1] 67531592
+> load("D:/教学/数据/月度数据.RData")
+> var(data$`进出口总值当期值(千美元)`)
+[1] 1.742298e+15
+> sd(data$`进出口总值当期值(千美元)`)
+[1] 41740847
+> stem(data$`进出口总值当期值(千美元)`)
+
+Shapiro-Wilk 正态性检验
+> #Shapiro-Wilk 正态性检验
+> load("D:/教学/数据/月度数据.RData")
+> shapiro.test(data$`出口总值当期值(千美元)`)
+Shapiro-Wilk normality test
+data: data$`出口总值当期值(千美元)`
