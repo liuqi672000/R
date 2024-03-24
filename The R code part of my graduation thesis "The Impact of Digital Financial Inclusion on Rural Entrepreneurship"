@@ -1,0 +1,83 @@
+library(dplyr)
+library(readxl)
+library(broom)
+library(ggplot2)
+library(GGally)
+library(margins)
+library(car)
+
+set.seed(123) 
+n <- 500 
+data <- tibble(
+  id = 1:n, 
+  entrepreneurship = rbinom(n, 1, 0.2),
+  index = runif(n, 0, 100),
+  age = rnorm(n, 45, 10),
+  gender = factor(rbinom(n, 1, 0.5), labels = c("女性", "男性")),
+  education = rnorm(n, 12, 3),
+  marital_status = factor(rbinom(n, 1, 0.7), labels = c("未婚", "已婚")),
+  health_status = rnorm(n, 5, 1),
+  income = rnorm(n, 30000, 5000)
+)
+
+# data <- data %>% filter(complete.cases(.))
+
+summary(data)
+ggpairs(data %>% select(-id))
+
+ 
+model <- glm(entrepreneurship ~ index + age + as.numeric(gender) + education + as.numeric(marital_status) + health_status + income, 
+             family = binomial(link = "probit"), data = data)
+
+summary(model)
+tidy_model <- tidy(model)
+print(tidy_model)
+
+ggplot(tidy_model, aes(x = reorder(term, estimate), y = estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.2) +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "变量", y = "估计值", title = "Probit模型估计结果")
+
+m_effects <- margins(model)
+plot(m_effects)
+
+plot(model, which = 1)
+
+vif_model <- vif(model)
+print(vif_model)
+
+model_logit <- glm(entrepreneurship ~ index + age + as.numeric(gender) + education + as.numeric(marital_status) + health_status + income, 
+                   family = binomial(link = "logit"), data = data)
+summary(model_logit)
+
+model_female <- glm(entrepreneurship
+
+
+~ index + age + education + as.numeric(marital_status) + health_status + income, 
+             family = binomial(link = "probit"), data = filter(data, gender == "女性"))
+
+model_male <- glm(entrepreneurship ~ index + age + education + as.numeric(marital_status) + health_status + income, 
+             family = binomial(link = "probit"), data = filter(data, gender == "男性"))
+
+summary(model_female)
+summary(model_male)
+
+tidy_female <- tidy(model_female)
+tidy_male <- tidy(model_male)
+
+ggplot() +
+  geom_point(data = tidy_female, aes(x = term, y = estimate, colour = "Female")) +
+  geom_point(data = tidy_male, aes(x = term, y = estimate, colour = "Male")) +
+  geom_errorbar(data = tidy_female, aes(x = term, ymin = estimate - std.error, ymax = estimate + std.error, colour = "Female"), width = 0.2) +
+  geom_errorbar(data = tidy_male, aes(x = term, ymin = estimate - std.error, ymax = estimate + std.error, colour = "Male"), width = 0.2) +
+  theme_minimal() +
+  coord_flip() +
+  labs(x = "变量", y = "估计值", title = "性别分组Probit模型估计结果") +
+  scale_colour_manual(name = "性别", values = c("Female" = "pink", "Male" = "blue"))
+
+par(mfrow=c(2,2))
+plot(model)
+
+write.csv(tidy_model, "probit_model_results.csv")
